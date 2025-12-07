@@ -1,68 +1,60 @@
-PVE-SecGroup
+<div align="center">
+  <a href="https://www.enginyring.com">
+    <img src="https://cdn.enginyring.com/img/logo_dark.png" alt="ENGINYRING" width="200">
+  </a>
+</div>
 
-A robust, automated firewall object manager for Proxmox VE that dynamically aggregates ASN prefixes using bgpq4. This tool allows administrators to define security groups based on Autonomous System Numbers (ASNs) and automatically keeps them updated with the latest IP prefixes, optimized for performance.
+<h1 align="center">PVE-SecGroup</h1>
 
-Project URL: https://github.com/ENGINYRING/PVE-SecGroup
+<p align="center">
+  <img src="https://img.shields.io/badge/PVE--SecGroup-v1.0.0-blue" alt="PVE-SecGroup Banner">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+</p>
 
-Author: ENGINYRING
+<p align="center">
+  A robust, automated firewall object manager for Proxmox VE that dynamically aggregates ASN prefixes using <code>bgpq4</code>. This tool allows administrators to define security groups based on Autonomous System Numbers (ASNs) and automatically keeps them updated with the latest IP prefixes, optimized for performance.
+</p>
 
-📋 Table of Contents
+<p align="center">
+  <strong>Project URL</strong>: <a href="https://github.com/ENGINYRING/PVE-SecGroup">https://github.com/ENGINYRING/PVE-SecGroup</a><br>
+  <strong>Author</strong>: <a href="https://www.enginyring.com">ENGINYRING</a>
+</p>
 
-Features
+<hr>
 
-How It Works
+<h2>📋 Table of Contents</h2>
 
-Installation
+<ul>
+  <li><a href="#features">Features</a></li>
+  <li><a href="#installation">Installation</a></li>
+  <li><a href="#usage">Usage</a></li>
+  <li><a href="#configuration">Configuration</a></li>
+  <li><a href="#automation">Automation</a></li>
+  <li><a href="#example-output">Example Output</a></li>
+  <li><a href="#requirements">Requirements</a></li>
+  <li><a href="#disclaimer">Disclaimer</a></li>
+  <li><a href="#license">License</a></li>
+</ul>
 
-Configuration
+<h2 id="features">🚀 Features</h2>
 
-Usage
+<ul>
+  <li><strong>BGP Aggregation</strong>: Uses <code>bgpq4</code> to fetch and merge thousands of /24 prefixes into optimized supernets (e.g., /19, /20), significantly reducing firewall rule count.</li>
+  <li><strong>Atomic Updates</strong>: Performs updates using a "Working Configuration" approach. The live firewall is only touched once the new config is fully generated and validated.</li>
+  <li><strong>Safety First</strong>: Automatically backs up the existing cluster firewall configuration before every run.</li>
+  <li><strong>Multi-Group Support</strong>: Configure multiple security groups mapping to different ASNs (e.g., one group for "Trusted Partners" and another for "Blocked Bad Actors").</li>
+  <li><strong>Modular Configuration</strong>: Logic is separated from configuration, allowing for easy updates and management.</li>
+  <li><strong>Smart Detection</strong>: Automatically detects configuration files in local directories (for testing) or system directories (for production).</li>
+  <li><strong>Verbose Logging</strong>: Detailed logs for auditing changes and troubleshooting.</li>
+</ul>
 
-Automation
+<h2 id="installation">💻 Installation</h2>
 
-Example Output
-
-Requirements
-
-Disclaimer
-
-License
-
-🚀 Features
-
-BGP Aggregation: Uses bgpq4 to fetch and merge thousands of /24 prefixes into optimized supernets (e.g., /19, /20), significantly reducing firewall rule count.
-
-Atomic Updates: Performs updates using a "Working Configuration" approach. The live firewall is only touched once the new config is fully generated and validated.
-
-Safety First: Automatically backs up the existing cluster firewall configuration before every run.
-
-Multi-Group Support: Configure multiple security groups mapping to different ASNs (e.g., one group for "Trusted Partners" and another for "Blocked Bad Actors").
-
-Modular Configuration: Logic is separated from configuration, allowing for easy updates and management.
-
-Smart Detection: Automatically detects configuration files in local directories (for testing) or system directories (for production).
-
-Verbose Logging: Detailed logs for auditing changes and troubleshooting.
-
-🧠 How It Works
-
-Fetch: The script queries the IRR (Internet Routing Registry) databases via bgpq4 for the specified ASNs.
-
-Aggregate: It merges adjacent subnets. For example, instead of adding 256 individual rules for a /16 network, it adds a single rule.
-
-Parse: It reads your /etc/pve/firewall/cluster.fw, identifies the target Security Group, and surgically replaces only that section.
-
-Validate: It checks the integrity of the generated configuration.
-
-Apply: It swaps the configuration and reloads the pve-firewall service.
-
-💻 Installation
-
-# 1. Install dependencies
+<pre><code># 1. Install dependencies
 apt-get update && apt-get install bgpq4
 
 # 2. Clone the repository
-git clone [https://github.com/ENGINYRING/PVE-SecGroup.git](https://github.com/ENGINYRING/PVE-SecGroup.git)
+git clone https://github.com/ENGINYRING/PVE-SecGroup.git
 
 # 3. Change directory
 cd PVE-SecGroup
@@ -71,18 +63,25 @@ cd PVE-SecGroup
 cp pve-secgroup.sh /usr/local/bin/
 cp pve-secgroup.conf /etc/
 chmod +x /usr/local/bin/pve-secgroup.sh
+</code></pre>
 
+<h2 id="usage">🔧 Usage</h2>
 
-⚙️ Configuration
+<p>You can run the script manually to test the update process. The script supports verbose output to standard out.</p>
 
-Edit the /etc/pve-secgroup.conf file to define your groups.
+<pre><code>/usr/local/bin/pve-secgroup.sh
+</code></pre>
 
-nano /etc/pve-secgroup.conf
+<h2 id="configuration">⚙️ Configuration</h2>
 
+<p>Edit the <code>/etc/pve-secgroup.conf</code> file to define your groups.</p>
 
-Example Configuration:
+<pre><code>nano /etc/pve-secgroup.conf
+</code></pre>
 
-# Rule Action: REJECT or DROP
+<p><strong>Example Configuration:</strong></p>
+
+<pre><code># Rule Action: REJECT or DROP
 RULE_ACTION="REJECT" 
 
 # Define Groups
@@ -95,31 +94,26 @@ TARGET_GROUPS["servers-tech-fzco"]="AS216071"
 
 # Example 2: Allow a whitelist of trusted providers (Cloudflare & Google)
 # TARGET_GROUPS["trusted-cdn"]="AS13335 AS15169"
+</code></pre>
 
+<h2 id="automation">🤖 Automation</h2>
 
-🔧 Usage
+<p>To keep your firewall rules up to date with BGP route changes, add a cron job. We recommend running this once daily.</p>
 
-You can run the script manually to test the update process. The script supports verbose output to standard out.
+<pre><code>crontab -e
+</code></pre>
 
-/usr/local/bin/pve-secgroup.sh
+<p>Add the following line:</p>
 
-
-🤖 Automation
-
-To keep your firewall rules up to date with BGP route changes, add a cron job. We recommend running this once daily.
-
-crontab -e
-
-
-Add the following line:
-
-# Update Proxmox Firewall Groups daily at 02:00 AM
+<pre><code># Update Proxmox Firewall Groups daily at 02:00 AM
 0 2 * * * /usr/local/bin/pve-secgroup.sh >/dev/null 2>&1
+</code></pre>
 
+<h2 id="example-output">📝 Example Output</h2>
 
-📝 Example Output
+<p>The script provides clear feedback on every step of the process:</p>
 
-[2025-12-07 14:00:01] Starting Firewall Update Sequence...
+<pre><code>[2025-12-07 14:00:01] Starting Firewall Update Sequence...
 [2025-12-07 14:00:01] Loaded configuration from: /etc/pve-secgroup.conf
 [2025-12-07 14:00:01] Backup created at /etc/pve/firewall/backups/cluster.fw.1733572801.bak
 [2025-12-07 14:00:02] Processing Group: [servers-tech-fzco] | ASNs: AS216071
@@ -128,35 +122,33 @@ Add the following line:
 [2025-12-07 14:00:03] All groups processed. Configuration applied to /etc/pve/firewall/cluster.fw
 [2025-12-07 14:00:04] Firewall service restarted successfully
 [2025-12-07 14:00:04] Update sequence completed.
+</code></pre>
 
+<h2 id="requirements">📦 Requirements</h2>
 
-📦 Requirements
+<ul>
+  <li><strong>OS</strong>: Proxmox VE (Debian-based)</li>
+  <li><strong>Dependencies</strong>: <code>bgpq4</code></li>
+  <li><strong>Access</strong>: Root privileges are required to modify firewall configurations.</li>
+</ul>
 
-OS: Proxmox VE (Debian-based)
+<h2 id="disclaimer">⚠️ Disclaimer</h2>
 
-Dependencies: bgpq4
+<p><strong>IMPORTANT</strong>: This tool is provided "as is" without warranties or guarantees of any kind, express or implied.</p>
 
-Access: Root privileges are required to modify firewall configurations.
+<ul>
+  <li>ENGINYRING is <strong>NOT RESPONSIBLE</strong> for any connectivity loss, system instability, or data loss arising from the use of this tool.</li>
+  <li>Incorrect ASN configurations can lead to locking yourself out of your server. Always ensure you have out-of-band access (IPMI/KVM) or a whitelist for your management IP.</li>
+  <li>Always <strong>TEST CONFIGURATIONS</strong> in a non-production environment first.</li>
+  <li>By using this tool, you acknowledge that you are making automated changes to your firewall security policies <strong>AT YOUR OWN RISK</strong>.</li>
+  <li><strong>ALWAYS BACKUP</strong> your original configuration before applying any changes.</li>
+</ul>
 
-⚠️ Disclaimer
+<h2 id="license">📄 License</h2>
 
-IMPORTANT: This tool is provided "as is" without warranties or guarantees of any kind, express or implied.
+<p>This project is licensed under the MIT License - see the LICENSE file in the repository for details.</p>
 
-ENGINYRING is NOT RESPONSIBLE for any connectivity loss, system instability, or data loss arising from the use of this tool.
-
-Incorrect ASN configurations can lead to locking yourself out of your server. Always ensure you have out-of-band access (IPMI/KVM) or a whitelist for your management IP.
-
-Always TEST CONFIGURATIONS in a non-production environment first.
-
-By using this tool, you acknowledge that you are making automated changes to your firewall security policies AT YOUR OWN RISK.
-
-ALWAYS BACKUP your original configuration before applying any changes.
-
-📄 License
-
-This project is licensed under the MIT License - see the LICENSE file in the repository for details.
-
-MIT License
+<pre><code>MIT License
 
 Copyright (c) 2025 ENGINYRING
 
@@ -177,20 +169,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+</code></pre>
 
+<hr>
 
 <p align="center">
-<a href="https://www.enginyring.com">
-<img src="https://img.shields.io/badge/Powered%20by-ENGINYRING-blue" alt="Powered by ENGINYRING">
-</a>
-
-
-
-
-
-High-Performance Web Hosting & VPS Services
+  <a href="https://www.enginyring.com">
+    <img src="https://img.shields.io/badge/Powered%20by-ENGINYRING-blue" alt="Powered by ENGINYRING">
+  </a>
+  <br>
+  High-Performance Web Hosting & VPS Services
 </p>
 
-© 2025 ENGINYRING. All rights reserved.
-
-Web hosting | VPS hosting | Free DevOps tools
+<p align="center">
+  © 2025 ENGINYRING. All rights reserved.<br>
+  <br>
+  <a href="https://www.enginyring.com/en/webhosting">Web hosting</a> | 
+  <a href="https://www.enginyring.com/en/virtual-servers">VPS hosting</a> | 
+  <a href="https://www.enginyring.com/tools">Free DevOps tools</a>
+</p>
